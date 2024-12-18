@@ -41,7 +41,6 @@ const Header = () => {
           </Link>
         </div>
         <div className="flex space-x-6">
-          <Link to="/dashboard" className="text-white hover:text-blue-200">Dashboard</Link>
 
           <div className="relative" ref={managementRef}>
             <button

@@ -1,64 +1,160 @@
-import React, { useState } from 'react';
-import { Formik, Field, Form } from 'formik';
-import * as Yup from 'yup';
+import React, { useEffect, useState } from 'react';
+import ProductForm from '../components/ProductForm';
+import ProductList from '../components/ProductList';
+import Loader from '../components/Loader';
+import {
+  getCatalogItems,
+  createCatalogItem,
+  updateCatalogItemDetails,
+  updateCatalogItemPictureUrl,
+  updateCatalogItemType,
+  updateCatalogItemBrand,
+  updateCatalogItemStock,
+  deleteCatalogItem,
+} from '../services/productService';
+import { getCatalogBrands } from '../services/brandService';
+import { getCatalogTypes } from '../services/typeService';
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);
-
-  // Validation Schema
-  const productSchema = Yup.object({
-    name: Yup.string().required('Product name is required'),
-    price: Yup.number().required('Price is required').positive('Price must be positive'),
+  const [brands, setBrands] = useState([]);
+  const [types, setTypes] = useState([]);
+  const [editingProductId, setEditingProductId] = useState(null);
+  const [newProduct, setNewProduct] = useState({
+    name: '',
+    description: '',
+    price: '',
+    pictureUrl: '',
+    stockQuantity: '',
+    catalogTypeId: '',
+    catalogBrandId: '',
   });
+  const [loading, setLoading] = useState(false);
 
-  // Handle form submission
-  const handleSubmit = (values) => {
-    setProducts([...products, values]);  // Here, you would send it to backend
-    alert('Product added!');
+  const loadProducts = async () => {
+    setLoading(true);
+    try {
+      const data = await getCatalogItems();
+      setProducts(data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+    setLoading(false);
+  };
+
+  const loadBrandsAndTypes = async () => {
+    try {
+      const brandsData = await getCatalogBrands();
+      const typesData = await getCatalogTypes();
+
+      setBrands(
+        brandsData.map((brand) => ({
+          value: brand.id,
+          label: brand.brand,
+        }))
+      );
+
+      setTypes(
+        typesData.map((type) => ({
+          value: type.id,
+          label: type.type,
+        }))
+      );
+    } catch (error) {
+      console.error('Error loading brands or types:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadProducts();
+    loadBrandsAndTypes();
+  }, []);
+
+  const handleAddOrUpdateProduct = async () => {
+    try {
+      const productToSubmit = {
+        ...newProduct,
+        pictureUrl: newProduct.pictureUrl.trim()
+          ? newProduct.pictureUrl
+          : 'https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png?v=1530129081',
+      };
+
+      if (editingProductId) {
+        await updateCatalogItemDetails(editingProductId, {
+          name: productToSubmit.name,
+          description: productToSubmit.description,
+          price: productToSubmit.price,
+        });
+        await updateCatalogItemPictureUrl(editingProductId, productToSubmit.pictureUrl);
+        await updateCatalogItemType(editingProductId, productToSubmit.catalogTypeId);
+        await updateCatalogItemBrand(editingProductId, productToSubmit.catalogBrandId);
+        await updateCatalogItemStock(editingProductId, {
+          stockQuantity: productToSubmit.stockQuantity,
+        });
+      } else {
+        await createCatalogItem(productToSubmit);
+      }
+
+      setNewProduct({
+        name: '',
+        description: '',
+        price: '',
+        pictureUrl: '',
+        stockQuantity: '',
+        catalogTypeId: '',
+        catalogBrandId: '',
+      });
+      setEditingProductId(null);
+      loadProducts();
+    } catch (error) {
+      console.error('Error adding/updating product:', error);
+    }
+  };
+
+  const handleDeleteProduct = async (id) => {
+    try {
+      await deleteCatalogItem(id);
+      loadProducts();
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  };
+
+  const handleEditProduct = (product) => {
+    setEditingProductId(product.id);
+    setNewProduct({
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      pictureUrl: product.pictureUrl || '',
+      stockQuantity: product.stockQuantity,
+      catalogTypeId: product.catalogTypeId,
+      catalogBrandId: product.catalogBrandId,
+    });
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Product Management</h1>
-      
-      <Formik
-        initialValues={{ name: '', price: '' }}
-        validationSchema={productSchema}
-        onSubmit={handleSubmit}
-      >
-        <Form className="mb-4">
-          <div>
-            <label className="block text-sm font-medium">Product Name</label>
-            <Field
-              name="name"
-              type="text"
-              className="mt-1 p-2 border rounded w-full"
-            />
-          </div>
-          <div className="mt-4">
-            <label className="block text-sm font-medium">Price</label>
-            <Field
-              name="price"
-              type="number"
-              className="mt-1 p-2 border rounded w-full"
-            />
-          </div>
-          <button type="submit" className="mt-4 bg-blue-600 text-white p-2 rounded">
-            Add Product
-          </button>
-        </Form>
-      </Formik>
 
-      <div className="mt-6">
-        <h2 className="text-xl font-semibold mb-2">Product List</h2>
-        <ul>
-          {products.map((product, index) => (
-            <li key={index} className="p-2 border-b">
-              {product.name} - ${product.price}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <ProductForm
+        brands={brands}
+        types={types}
+        newProduct={newProduct}
+        setNewProduct={setNewProduct}
+        handleAddOrUpdateProduct={handleAddOrUpdateProduct}
+        editingProductId={editingProductId}
+      />
+
+      {loading ? (
+        <Loader />
+      ) : (
+        <ProductList
+          products={products}
+          handleEditProduct={handleEditProduct}
+          handleDeleteProduct={handleDeleteProduct}
+        />
+      )}
     </div>
   );
 };
