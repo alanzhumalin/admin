@@ -3,10 +3,12 @@ import OrderDetails from './OrderDetails';
 
 const OrderRow = ({ order, handleConfirmOrder, processingOrderId }) => {
   return (
-    <tr className="text-center">
+    <tr className="text-center text-sm sm:text-base">
       <td className="p-2 border">{order.id}</td>
       <td className="p-2 border">{order.userId}</td>
-      <td className="p-2 border">{new Date(order.orderDate).toDateString()}</td>
+      <td className="p-2 border">
+        {new Date(order.orderDate).toDateString()}
+      </td>
       <td className="p-2 border">{order.totalPrice} ₸</td>
       <td className="p-2 border text-left">
         <OrderDetails items={order.items} />
@@ -17,7 +19,7 @@ const OrderRow = ({ order, handleConfirmOrder, processingOrderId }) => {
         ) : (
           <button
             onClick={() => handleConfirmOrder(order.id)}
-            className={`px-3 py-1 rounded text-white ${
+            className={`px-3 py-1 rounded text-white text-sm ${
               processingOrderId === order.id
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-green-500 hover:bg-green-600'

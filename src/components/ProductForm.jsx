@@ -11,7 +11,7 @@ const ProductForm = ({
 }) => {
   return (
     <div className="mb-4">
-      <div className="grid grid-cols-5 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
         <input
           type="text"
           placeholder="Name"
@@ -19,7 +19,7 @@ const ProductForm = ({
           onChange={(e) =>
             setNewProduct({ ...newProduct, name: e.target.value })
           }
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full"
         />
         <input
           type="text"
@@ -28,7 +28,7 @@ const ProductForm = ({
           onChange={(e) =>
             setNewProduct({ ...newProduct, description: e.target.value })
           }
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full"
         />
         <input
           type="number"
@@ -37,7 +37,7 @@ const ProductForm = ({
           onChange={(e) =>
             setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })
           }
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full"
         />
         <input
           type="text"
@@ -46,7 +46,7 @@ const ProductForm = ({
           onChange={(e) =>
             setNewProduct({ ...newProduct, pictureUrl: e.target.value })
           }
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full"
         />
         <input
           type="number"
@@ -58,11 +58,11 @@ const ProductForm = ({
               stockQuantity: parseInt(e.target.value),
             })
           }
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full"
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
           <label className="block text-gray-700 font-semibold mb-2">
             Select Brand
@@ -74,7 +74,7 @@ const ProductForm = ({
                 ? brands.find((b) => b.value === newProduct.catalogBrandId)
                 : null
             }
-            placeholder="Select Brand"
+            placeholder="Ex. Adidas"
             onChange={(selectedOption) =>
               setNewProduct({
                 ...newProduct,
@@ -94,7 +94,7 @@ const ProductForm = ({
                 ? types.find((t) => t.value === newProduct.catalogTypeId)
                 : null
             }
-            placeholder="Select Type"
+            placeholder="Ex. Summer shoes"
             onChange={(selectedOption) =>
               setNewProduct({
                 ...newProduct,
@@ -105,12 +105,14 @@ const ProductForm = ({
         </div>
       </div>
 
-      <button
-        onClick={handleAddOrUpdateProduct}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        {editingProductId ? 'Update Product' : 'Add Product'}
-      </button>
+      <div className="flex justify-end">
+        <button
+          onClick={handleAddOrUpdateProduct}
+          className="bg-blue-500 text-white px-4 py-2 rounded w-full md:w-auto"
+        >
+          {editingProductId ? 'Update Product' : 'Add Product'}
+        </button>
+      </div>
     </div>
   );
 };

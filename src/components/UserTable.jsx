@@ -1,5 +1,6 @@
 const UserTable = ({ users, setSelectedUser, setUpdatedProfile }) => {
-    return (
+  return (
+    <div className="overflow-x-auto">
       <table className="min-w-full border-collapse mb-4">
         <thead>
           <tr className="bg-gray-200">
@@ -12,7 +13,7 @@ const UserTable = ({ users, setSelectedUser, setUpdatedProfile }) => {
         </thead>
         <tbody>
           {users.map((user) => (
-            <tr key={user.userId} className="text-center">
+            <tr key={user.userId} className="text-center text-sm sm:text-base">
               <td className="p-2 border">{user.userId}</td>
               <td className="p-2 border">{user.firstName} {user.lastName}</td>
               <td className="p-2 border">{user.email}</td>
@@ -36,8 +37,10 @@ const UserTable = ({ users, setSelectedUser, setUpdatedProfile }) => {
           ))}
         </tbody>
       </table>
-    );
-  };
+    </div>
+  );
+};
+
   
   export default UserTable;
   
