@@ -101,8 +101,10 @@ const UserManagement = () => {
           setUpdatedProfile={setUpdatedProfile}
           handleUpdateProfile={handleUpdateProfile}
           setSelectedUser={setSelectedUser}
+          loadUsers={loadUsers} 
         />
       )}
+
     </div>
   );
 };
